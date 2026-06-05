@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通学ナビ — 足利市↔日工大</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #22263a;
+    --border: #2e3350;
+    --text: #e8eaf6;
+    --text2: #8b90b0;
+    --accent: #5c8aff;
+    --accent2: #3d63d4;
+    --green: #2ecc87;
+    --orange: #f5a623;
+    --purple: #9b7aff;
+    --red: #ff6b6b;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; }
+  .header-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+  .container { max-width: 540px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .card-title {
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* タブ */
+  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
+  .tab-btn {
+    flex: 1; padding: 11px 8px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--text2);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: var(--accent2); border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* トグル */
+  .toggle-row { display: flex; gap: 6px; }
+  .tog-btn {
+    flex: 1; padding: 9px 6px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 12px; font-weight: 500;
+    cursor: pointer; color: var(--text2);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s; text-align: center;
+  }
+  .tog-btn.active {
+    background: rgba(92,138,255,0.15); border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tog-btn.active-warn {
+    background: rgba(245,166,35,0.15); border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* 時計 */
+  .clock-row { display: flex; align-items: center; justify-content: space-between; }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 600;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+  .clock-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .now-btn {
+    padding: 8px 14px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 12px; font-weight: 500;
+    cursor: pointer; color: var(--text2);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s;
+  }
+  .now-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .time-manual {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 0.75rem; padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .time-manual label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .time-manual input[type=time] {
+    flex: 1; padding: 8px 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-size: 14px; font-family: 'JetBrains Mono', monospace;
+    outline: none;
+  }
+  .time-manual input[type=time]:focus { border-color: var(--accent); }
+  .mini-btn {
+    padding: 8px 14px;
+    background: var(--accent2); border: 1px solid var(--accent);
+    border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
+    cursor: pointer; color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .mini-btn:hover { background: var(--accent); }
+
+  /* 検索ボタン */
+  .search-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; border-radius: var(--radius); font-size: 15px; font-weight: 700;
+    cursor: pointer; color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-bottom: 1rem; letter-spacing: 0.05em;
+    transition: all 0.15s; box-shadow: 0 4px 20px rgba(92,138,255,0.3);
+  }
+  .search-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(92,138,255,0.4); }
+  .search-btn:active { transform: translateY(0); }
+
+  /* ルートカード */
+  .route-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem; transition: border-color 0.15s;
+  }
+  .route-card.first { border-color: var(--accent); }
+  .route-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.875rem;
+  }
+  .route-total { font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .badge-fastest {
+    font-size: 10px; padding: 3px 8px;
+    background: linear-gradient(135deg, var(--green), #1ab870);
+    color: #fff; border-radius: 20px; font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .route-via {
+    font-size: 11px; padding: 3px 10px;
+    background: rgba(92,138,255,0.15); color: var(--accent);
+    border: 1px solid rgba(92,138,255,0.3); border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* ステップ */
+  .steps { display: flex; flex-direction: column; }
+  .step { display: flex; gap: 10px; padding-bottom: 10px; }
+  .step:last-child { padding-bottom: 0; }
+  .step-left { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+  .step-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .step-dot.start { background: var(--green); box-shadow: 0 0 8px rgba(46,204,135,0.6); }
+  .step-dot.end   { background: var(--red);   box-shadow: 0 0 8px rgba(255,107,107,0.6); }
+  .step-dot.mid   { background: var(--purple); }
+  .step-line { width: 1px; background: var(--border); flex: 1; margin-top: 3px; min-height: 16px; }
+  .step-right { flex: 1; min-width: 0; }
+  .step-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .step-label { font-size: 13px; font-weight: 500; color: var(--text); }
+  .step-time {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+  }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 20px; margin-top: 3px;
+    background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
+  }
+  .badge.bus   { background: rgba(46,204,135,0.15); color: var(--green); border-color: rgba(46,204,135,0.3); }
+  .badge.express { background: rgba(245,166,35,0.15); color: var(--orange); border-color: rgba(245,166,35,0.3); }
+
+  .no-result { text-align: center; padding: 2.5rem 1rem; color: var(--text2); font-size: 14px; }
+
+  /* colorscheme for time input */
+  input[type=time]::-webkit-calendar-picker-indicator { filter: invert(1); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🚃</div>
+  <div>
+    <div class="header-title">通学ナビ</div>
+    <div class="header-sub">足利市駅 ↔ 日本工業大学</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-to" onclick="setMode('toSchool')">🏫 足利市 → 大学</button>
+    <button class="tab-btn" id="tab-from" onclick="setMode('fromSchool')">🏠 大学 → 足利市</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">種別</div>
+    <div class="toggle-row">
+      <button class="tog-btn active" id="btn-weekday" onclick="setDay('weekday')">平日</button>
+      <button class="tog-btn" id="btn-holiday" onclick="setDay('holiday')">休日</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">特急・有料列車</div>
+    <div class="toggle-row">
+      <button class="tog-btn active-warn" id="btn-exp-ok" onclick="setExp(true)">⚡ りょうもう・リバティ 使う</button>
+      <button class="tog-btn" id="btn-exp-no" onclick="setExp(false)">🚃 使わない</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">出発時刻</div>
+    <div class="clock-row">
+      <div>
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="clock-sub">現在時刻（自動更新）</div>
+      </div>
+      <button class="now-btn" onclick="useNow()">↺ 今すぐ検索</button>
+    </div>
+    <div class="time-manual">
+      <label id="time-label">足利市駅を出る時刻</label>
+      <input type="time" id="depart-time" />
+      <button class="mini-btn" onclick="search()">検索</button>
+    </div>
+  </div>
+
+  <button class="search-btn" onclick="useNow()">🔍 今すぐルートを検索</button>
+
+  <div id="results"></div>
+
+</div>
+
+<script>
+let mode='toSchool', dayType='weekday', useExpress=true;
+
+function toMin(h,m){return h*60+m;}
+function fromMin(m){return{h:Math.floor(m/60)%24,m:m%60};}
+function fmt(h,m){return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+function fmtMin(m){const t=fromMin(m);return fmt(t.h,t.m);}
+function isExp(t){return t==='りょうもう'||t==='リバティりょうもう';}
+function nextAfter(list,after,margin){margin=margin||0;return list.find(t=>toMin(t.h,t.m)>=after+margin)||null;}
+function nextFiltered(list,after,margin){margin=margin||0;return list.find(t=>{if(toMin(t.h,t.m)<after+margin)return false;if(!useExpress&&isExp(t.type))return false;return true;})||null;}
+
+function updateClock(){const n=new Date();document.getElementById('clock').textContent=fmt(n.getHours(),n.getMinutes())+':'+String(n.getSeconds()).padStart(2,'0');}
+setInterval(updateClock,1000);updateClock();
+
+function useNow(){const n=new Date();document.getElementById('depart-time').value=fmt(n.getHours(),n.getMinutes());search();}
+
+// 足利市→館林
+const ash_tat=[{h:5,m:9},{h:5,m:34},{h:5,m:56},{h:6,m:17},{h:6,m:32},{h:6,m:51},{h:7,m:4},{h:7,m:17},{h:7,m:40},{h:8,m:2},{h:8,m:20},{h:8,m:33},{h:9,m:1},{h:9,m:23},{h:9,m:55},{h:10,m:16},{h:10,m:26},{h:10,m:51},{h:11,m:28},{h:11,m:57},{h:12,m:26},{h:12,m:57},{h:13,m:26},{h:13,m:57},{h:14,m:26},{h:14,m:53},{h:15,m:24},{h:15,m:50},{h:16,m:14},{h:16,m:42},{h:17,m:14},{h:17,m:44},{h:18,m:13},{h:18,m:42},{h:19,m:10},{h:19,m:27},{h:19,m:48},{h:20,m:24},{h:20,m:53},{h:21,m:24},{h:21,m:51},{h:22,m:14},{h:22,m:52},{h:23,m:30}];
+
+// 館林→東武動物公園
+const tat_d=[{h:4,m:58,type:'区間急行'},{h:5,m:26,type:'りょうもう'},{h:5,m:27,type:'区間急行'},{h:5,m:53,type:'区間急行'},{h:6,m:5,type:'りょうもう'},{h:6,m:6,type:'区間急行'},{h:6,m:16,type:'区間急行'},{h:6,m:27,type:'区間急行'},{h:6,m:36,type:'区間急行'},{h:6,m:45,type:'区間急行'},{h:6,m:52,type:'区間急行'},{h:6,m:58,type:'りょうもう'},{h:7,m:4,type:'区間急行'},{h:7,m:15,type:'区間急行'},{h:7,m:25,type:'区間急行'},{h:7,m:35,type:'区間急行'},{h:7,m:45,type:'りょうもう'},{h:7,m:47,type:'区間急行'},{h:7,m:58,type:'区間急行'},{h:8,m:13,type:'りょうもう'},{h:8,m:19,type:'区間急行'},{h:8,m:37,type:'りょうもう'},{h:8,m:39,type:'普通'},{h:8,m:52,type:'区間準急'},{h:8,m:59,type:'りょうもう'},{h:9,m:7,type:'普通'},{h:9,m:21,type:'りょうもう'},{h:9,m:30,type:'区間準急'},{h:9,m:51,type:'りょうもう'},{h:9,m:59,type:'普通'},{h:10,m:15,type:'普通'},{h:10,m:37,type:'普通'},{h:10,m:51,type:'りょうもう'},{h:10,m:59,type:'普通'},{h:11,m:15,type:'普通'},{h:11,m:37,type:'普通'},{h:11,m:51,type:'りょうもう'},{h:11,m:57,type:'普通'},{h:12,m:19,type:'普通'},{h:12,m:37,type:'普通'},{h:12,m:51,type:'りょうもう'},{h:12,m:57,type:'普通'},{h:13,m:19,type:'普通'},{h:13,m:37,type:'普通'},{h:13,m:51,type:'りょうもう'},{h:13,m:57,type:'普通'},{h:14,m:18,type:'普通'},{h:14,m:37,type:'普通'},{h:14,m:51,type:'りょうもう'},{h:14,m:57,type:'普通'},{h:15,m:17,type:'普通'},{h:15,m:37,type:'普通'},{h:15,m:51,type:'りょうもう'},{h:15,m:58,type:'普通'},{h:16,m:12,type:'普通'},{h:16,m:18,type:'りょうもう'},{h:16,m:35,type:'普通'},{h:16,m:48,type:'りょうもう'},{h:16,m:52,type:'普通'},{h:17,m:11,type:'普通'},{h:17,m:17,type:'りょうもう'},{h:17,m:35,type:'普通'},{h:17,m:48,type:'りょうもう'},{h:17,m:52,type:'普通'},{h:18,m:8,type:'普通'},{h:18,m:18,type:'りょうもう'},{h:18,m:23,type:'区間準急'},{h:18,m:34,type:'普通'},{h:18,m:48,type:'りょうもう'},{h:18,m:52,type:'普通'},{h:19,m:7,type:'普通'},{h:19,m:18,type:'りょうもう'},{h:19,m:28,type:'普通'},{h:19,m:48,type:'りょうもう'},{h:19,m:50,type:'普通'},{h:20,m:5,type:'普通'},{h:20,m:18,type:'りょうもう'},{h:20,m:26,type:'普通'},{h:20,m:48,type:'りょうもう'},{h:20,m:54,type:'区間準急'},{h:21,m:14,type:'普通'},{h:21,m:44,type:'普通'},{h:22,m:10,type:'区間準急'},{h:22,m:34,type:'区間急行'}];
+function f_t2d(t){if(isExp(t))return 20;if(t==='区間急行')return 28;if(t==='区間準急')return 35;return 42;}
+function f_t2k(t){if(isExp(t))return 45;if(t==='区間急行')return 40;if(t==='区間準急')return 48;return 55;}
+
+// 東武動物公園→館林
+const d_tat=[{h:5,m:12,type:'普通'},{h:5,m:43,type:'普通'},{h:6,m:5,type:'区間急行'},{h:6,m:20,type:'区間急行'},{h:6,m:37,type:'普通'},{h:6,m:57,type:'普通'},{h:7,m:13,type:'普通'},{h:7,m:29,type:'りょうもう'},{h:7,m:34,type:'普通'},{h:7,m:43,type:'区間急行'},{h:7,m:56,type:'区間急行'},{h:8,m:4,type:'区間急行'},{h:8,m:20,type:'りょうもう'},{h:8,m:23,type:'区間準急'},{h:8,m:44,type:'区間準急'},{h:9,m:4,type:'区間準急'},{h:9,m:20,type:'りょうもう'},{h:9,m:31,type:'区間準急'},{h:10,m:20,type:'りょうもう'},{h:10,m:26,type:'区間準急'},{h:10,m:59,type:'りょうもう'},{h:11,m:29,type:'りょうもう'},{h:12,m:29,type:'りょうもう'},{h:13,m:29,type:'りょうもう'},{h:14,m:29,type:'りょうもう'},{h:15,m:29,type:'りょうもう'},{h:15,m:59,type:'りょうもう'},{h:16,m:28,type:'りょうもう'},{h:16,m:58,type:'りょうもう'},{h:17,m:29,type:'りょうもう'},{h:17,m:50,type:'りょうもう'},{h:18,m:10,type:'区間準急'},{h:18,m:20,type:'りょうもう'},{h:18,m:36,type:'区間準急'},{h:18,m:50,type:'りょうもう'},{h:18,m:53,type:'区間急行'},{h:19,m:20,type:'りょうもう'},{h:19,m:35,type:'区間準急'},{h:19,m:50,type:'りょうもう'},{h:19,m:53,type:'区間急行'},{h:20,m:20,type:'りょうもう'},{h:20,m:50,type:'りょうもう'},{h:20,m:53,type:'区間急行'},{h:21,m:32,type:'区間準急'},{h:21,m:50,type:'りょうもう'},{h:21,m:59,type:'区間準急'},{h:22,m:20,type:'りょうもう'},{h:22,m:25,type:'区間準急'},{h:22,m:49,type:'区間急行'},{h:23,m:0,type:'りょうもう'},{h:23,m:17,type:'区間準急'},{h:23,m:37,type:'区間急行'},{h:23,m:55,type:'区間急行'}];
+function f_d2t(t){if(isExp(t))return 30;if(t==='区間急行')return 38;if(t==='区間準急')return 45;return 52;}
+
+// 館林→足利市
+const tat_ash=[{h:5,m:1,type:'普通'},{h:5,m:32,type:'普通'},{h:5,m:54,type:'普通'},{h:6,m:25,type:'普通'},{h:6,m:43,type:'普通'},{h:6,m:59,type:'普通'},{h:7,m:15,type:'普通'},{h:7,m:35,type:'普通'},{h:7,m:56,type:'りょうもう'},{h:8,m:0,type:'普通'},{h:8,m:25,type:'普通'},{h:8,m:50,type:'りょうもう'},{h:9,m:0,type:'普通'},{h:9,m:23,type:'普通'},{h:9,m:51,type:'りょうもう'},{h:9,m:55,type:'普通'},{h:10,m:33,type:'普通'},{h:10,m:50,type:'りょうもう'},{h:11,m:9,type:'普通'},{h:11,m:26,type:'りょうもう'},{h:11,m:34,type:'普通'},{h:11,m:56,type:'りょうもう'},{h:12,m:9,type:'普通'},{h:12,m:34,type:'普通'},{h:12,m:56,type:'りょうもう'},{h:13,m:9,type:'普通'},{h:13,m:34,type:'普通'},{h:13,m:56,type:'りょうもう'},{h:14,m:9,type:'普通'},{h:14,m:34,type:'普通'},{h:14,m:54,type:'りょうもう'},{h:14,m:58,type:'普通'},{h:15,m:32,type:'普通'},{h:15,m:54,type:'りょうもう'},{h:15,m:58,type:'普通'},{h:16,m:8,type:'普通'},{h:16,m:26,type:'りょうもう'},{h:16,m:38,type:'普通'},{h:16,m:58,type:'りょうもう'},{h:17,m:7,type:'普通'},{h:17,m:26,type:'りょうもう'},{h:17,m:38,type:'普通'},{h:17,m:56,type:'りょうもう'},{h:18,m:8,type:'普通'},{h:18,m:19,type:'りょうもう'},{h:18,m:34,type:'普通'},{h:18,m:49,type:'りょうもう'},{h:18,m:54,type:'普通'},{h:19,m:6,type:'普通'},{h:19,m:20,type:'りょうもう'},{h:19,m:32,type:'普通'},{h:19,m:49,type:'りょうもう'},{h:19,m:53,type:'普通'},{h:20,m:8,type:'普通'},{h:20,m:20,type:'りょうもう'},{h:20,m:32,type:'普通'},{h:20,m:51,type:'りょうもう'},{h:21,m:3,type:'普通'},{h:21,m:18,type:'りょうもう'},{h:21,m:32,type:'普通'},{h:21,m:54,type:'普通'},{h:22,m:18,type:'りょうもう'},{h:22,m:23,type:'普通'},{h:22,m:48,type:'りょうもう'},{h:22,m:52,type:'普通'},{h:23,m:14,type:'普通'},{h:23,m:30,type:'普通'}];
+function f_t2a(t){if(isExp(t))return 12;return 20;}
+
+// 久喜→東武動物公園(南行)
+const kuki_s=[{h:6,m:12,type:'THライナー'},{h:6,m:51,type:'急行'},{h:7,m:3,type:'準急'},{h:8,m:14,type:'THライナー'},{h:9,m:13,type:'急行'},{h:9,m:45,type:'急行'},{h:10,m:12,type:'準急'},{h:10,m:29,type:'準急'},{h:10,m:54,type:'急行'},{h:11,m:16,type:'急行'},{h:11,m:33,type:'急行'},{h:11,m:53,type:'急行'},{h:12,m:13,type:'急行'},{h:12,m:33,type:'急行'},{h:12,m:53,type:'急行'},{h:13,m:13,type:'急行'},{h:13,m:33,type:'急行'},{h:13,m:53,type:'急行'},{h:14,m:13,type:'急行'},{h:14,m:33,type:'急行'},{h:14,m:53,type:'急行'},{h:15,m:13,type:'急行'},{h:15,m:33,type:'急行'},{h:15,m:53,type:'急行'},{h:16,m:13,type:'急行'},{h:16,m:33,type:'急行'},{h:16,m:53,type:'急行'},{h:17,m:5,type:'急行'},{h:17,m:24,type:'急行'},{h:17,m:46,type:'急行'},{h:18,m:6,type:'急行'},{h:18,m:23,type:'急行'},{h:18,m:43,type:'急行'},{h:19,m:4,type:'急行'},{h:19,m:23,type:'急行'},{h:19,m:45,type:'急行'},{h:20,m:4,type:'急行'},{h:20,m:22,type:'準急'},{h:20,m:43,type:'急行'},{h:21,m:3,type:'急行'},{h:21,m:44,type:'急行'},{h:22,m:1,type:'準急'}];
+function f_k2d(t){return(t==='THライナー'||t==='急行')?10:14;}
+
+// バス
+const b_d_nit_wd=[{h:8,m:4},{h:9,m:24},{h:10,m:54},{h:12,m:14},{h:13,m:44},{h:15,m:4},{h:16,m:34},{h:17,m:54}];
+const b_d_miy_wd=[{h:8,m:20},{h:8,m:41},{h:8,m:58},{h:9,m:11},{h:9,m:14},{h:9,m:41},{h:9,m:48},{h:10,m:0},{h:10,m:16},{h:10,m:38},{h:11,m:25},{h:11,m:45},{h:12,m:7},{h:12,m:56},{h:13,m:18},{h:13,m:45},{h:14,m:6},{h:14,m:46},{h:14,m:56},{h:15,m:4},{h:15,m:20},{h:15,m:37},{h:15,m:44},{h:16,m:0},{h:16,m:16},{h:16,m:40},{h:17,m:2},{h:17,m:13},{h:17,m:18},{h:17,m:43},{h:17,m:59},{h:18,m:1},{h:18,m:21},{h:18,m:30}];
+const b_d_hol=[{h:8,m:55},{h:9,m:11},{h:9,m:45},{h:10,m:1},{h:10,m:36},{h:10,m:52},{h:11,m:5},{h:11,m:26},{h:11,m:42},{h:12,m:47},{h:13,m:3},{h:13,m:35},{h:14,m:20},{h:14,m:49},{h:15,m:21},{h:15,m:37},{h:15,m:53},{h:16,m:20},{h:16,m:57},{h:17,m:17},{h:17,m:43},{h:17,m:59},{h:18,m:19}];
+const b_nit_wd=[{h:8,m:19},{h:9,m:49},{h:11,m:9},{h:12,m:39},{h:13,m:59},{h:15,m:29},{h:16,m:49},{h:18,m:9}];
+const b_miy_wd=[{h:9,m:6},{h:9,m:34},{h:9,m:40},{h:9,m:52},{h:10,m:8},{h:10,m:30},{h:11,m:18},{h:11,m:35},{h:12,m:1},{h:12,m:48},{h:13,m:10},{h:13,m:35},{h:13,m:53},{h:14,m:32},{h:14,m:48},{h:14,m:56},{h:15,m:12},{h:15,m:30},{h:15,m:35},{h:15,m:52},{h:16,m:8},{h:16,m:34},{h:16,m:47},{h:16,m:52},{h:17,m:5},{h:17,m:10},{h:17,m:20},{h:17,m:35},{h:17,m:51},{h:17,m:55},{h:18,m:9},{h:18,m:13},{h:18,m:22},{h:18,m:30},{h:18,m:54},{h:19,m:20}];
+const b_nit_hol=[{h:8,m:45},{h:9,m:3},{h:9,m:37},{h:9,m:53},{h:10,m:28},{h:10,m:44},{h:10,m:58},{h:11,m:15},{h:11,m:34},{h:12,m:39},{h:12,m:55},{h:13,m:28},{h:14,m:12},{h:14,m:31},{h:15,m:13},{h:15,m:29},{h:15,m:45},{h:16,m:12},{h:16,m:49},{h:17,m:7},{h:17,m:35},{h:17,m:51},{h:18,m:11},{h:18,m:48},{h:19,m:30}];
+
+function getBusTo(){
+  if(dayType==='holiday')return b_d_hol.map(b=>({...b,busType:'休日バス'}));
+  return[...b_d_nit_wd.map(b=>({...b,busType:'日工大直通'})),...b_d_miy_wd.map(b=>({...b,busType:'宮代町バス'}))].sort((a,b)=>toMin(a.h,a.m)-toMin(b.h,b.m));
+}
+function getBusFrom(){
+  if(dayType==='holiday')return b_nit_hol.map(b=>({...b,busType:'休日バス'}));
+  return[...b_nit_wd.map(b=>({...b,busType:'日工大直通'})),...b_miy_wd.map(b=>({...b,busType:'宮代町バス'}))].sort((a,b)=>toMin(a.h,a.m)-toMin(b.h,b.m));
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('tab-to').classList.toggle('active',m==='toSchool');
+  document.getElementById('tab-from').classList.toggle('active',m==='fromSchool');
+  document.getElementById('time-label').textContent=m==='toSchool'?'足利市駅を出る時刻':'大学を出る時刻';
+  document.getElementById('results').innerHTML='';
+}
+function setDay(d){
+  dayType=d;
+  document.getElementById('btn-weekday').classList.toggle('active',d==='weekday');
+  document.getElementById('btn-holiday').classList.toggle('active',d==='holiday');
+}
+function setExp(v){
+  useExpress=v;
+  document.getElementById('btn-exp-ok').className='tog-btn'+(v?' active-warn':'');
+  document.getElementById('btn-exp-no').className='tog-btn'+(!v?' active':'');
+}
+
+function search(){
+  const val=document.getElementById('depart-time').value;
+  if(!val){useNow();return;}
+  const[h,m]=val.split(':');
+  const dep=parseInt(h)*60+parseInt(m);
+  mode==='toSchool'?searchToSchool(dep):searchFromSchool(dep);
+}
+
+function searchToSchool(dep){
+  const MAR=5,routes=[];
+  for(const t1 of ash_tat){
+    const t1m=toMin(t1.h,t1.m);
+    if(t1m<dep)continue;
+    const arrTat=t1m+25;
+    const t2=nextFiltered(tat_d,arrTat,MAR);
+    if(!t2)continue;
+    const arrD=toMin(t2.h,t2.m)+f_t2d(t2.type);
+    const bus=nextAfter(getBusTo(),arrD,MAR);
+    if(!bus)continue;
+    const bm=toMin(bus.h,bus.m);
+    routes.push({via:'館林乗換',total:bm+20-t1m,steps:[
+      {dot:'start',label:'足利市駅 出発',time:fmt(t1.h,t1.m),badge:'普通 館林行き',bc:''},
+      {dot:'mid',label:'館林駅 乗換',time:`着${fmtMin(arrTat)} / 発${fmt(t2.h,t2.m)}`,badge:t2.type,bc:isExp(t2.type)?'express':''},
+      {dot:'mid',label:'東武動物公園駅 バス乗車',time:`着${fmtMin(arrD)} / 乗${fmt(bus.h,bus.m)}`,badge:bus.busType,bc:'bus'},
+      {dot:'end',label:'大学 到着',time:fmtMin(bm+20),badge:'',bc:''}
+    ]});
+    if(routes.length>=4)break;
+  }
+  const kr=[];
+  for(const t1 of ash_tat){
+    const t1m=toMin(t1.h,t1.m);
+    if(t1m<dep)continue;
+    const arrTat=t1m+25;
+    const t2=nextFiltered(tat_d,arrTat,MAR);
+    if(!t2)continue;
+    const arrK=toMin(t2.h,t2.m)+f_t2k(t2.type);
+    const t3=nextAfter(kuki_s,arrK,MAR);
+    if(!t3)continue;
+    const arrD=toMin(t3.h,t3.m)+f_k2d(t3.type);
+    const bus=nextAfter(getBusTo(),arrD,MAR);
+    if(!bus)continue;
+    const bm=toMin(bus.h,bus.m);
+    kr.push({via:'久喜経由',total:bm+20-t1m,steps:[
+      {dot:'start',label:'足利市駅 出発',time:fmt(t1.h,t1.m),badge:'普通 館林行き',bc:''},
+      {dot:'mid',label:'館林駅 乗換',time:`着${fmtMin(arrTat)} / 発${fmt(t2.h,t2.m)}`,badge:t2.type,bc:isExp(t2.type)?'express':''},
+      {dot:'mid',label:'久喜駅 乗換',time:`着${fmtMin(arrK)} / 発${fmt(t3.h,t3.m)}`,badge:t3.type+' 東武動物公園方面',bc:''},
+      {dot:'mid',label:'東武動物公園駅 バス乗車',time:`着${fmtMin(arrD)} / 乗${fmt(bus.h,bus.m)}`,badge:bus.busType,bc:'bus'},
+      {dot:'end',label:'大学 到着',time:fmtMin(bm+20),badge:'',bc:''}
+    ]});
+    if(kr.length>=2)break;
+  }
+  render([...routes,...kr].sort((a,b)=>a.total-b.total).slice(0,5));
+}
+
+function searchFromSchool(dep){
+  const MAR=5,routes=[];
+  for(const bus of getBusFrom()){
+    const bm=toMin(bus.h,bus.m);
+    if(bm<dep)continue;
+    const arrD=bm+20;
+    const t1=nextFiltered(d_tat,arrD,MAR);
+    if(!t1)continue;
+    const arrTat=toMin(t1.h,t1.m)+f_d2t(t1.type);
+    const t2=nextFiltered(tat_ash,arrTat,MAR);
+    if(!t2)continue;
+    const arrA=toMin(t2.h,t2.m)+f_t2a(t2.type);
+    routes.push({via:'館林乗換',total:arrA-bm,steps:[
+      {dot:'start',label:'大学 出発',time:fmt(bus.h,bus.m),badge:bus.busType,bc:'bus'},
+      {dot:'mid',label:'東武動物公園駅 乗換',time:`着${fmtMin(arrD)} / 発${fmt(t1.h,t1.m)}`,badge:t1.type,bc:isExp(t1.type)?'express':''},
+      {dot:'mid',label:'館林駅 乗換',time:`着${fmtMin(arrTat)} / 発${fmt(t2.h,t2.m)}`,badge:t2.type,bc:isExp(t2.type)?'express':''},
+      {dot:'end',label:'足利市駅 到着',time:fmtMin(arrA),badge:'',bc:''}
+    ]});
+    if(routes.length>=5)break;
+  }
+  render(routes);
+}
+
+function render(routes){
+  if(!routes.length){document.getElementById('results').innerHTML='<div class="no-result">該当するルートが見つかりませんでした。</div>';return;}
+  let html='';
+  routes.forEach((r,i)=>{
+    html+=`<div class="route-card${i===0?' first':''}">
+      <div class="route-header">
+        <span class="route-total">約${r.total}分${i===0?'<span class="badge-fastest">最速</span>':''}</span>
+        <span class="route-via">${r.via}</span>
+      </div><div class="steps">`;
+    r.steps.forEach((s,si)=>{
+      const last=si===r.steps.length-1;
+      html+=`<div class="step">
+        <div class="step-left"><div class="step-dot ${s.dot}"></div>${!last?'<div class="step-line"></div>':''}</div>
+        <div class="step-right">
+          <div class="step-row"><span class="step-label">${s.label}</span><span class="step-time">${s.time}</span></div>
+          ${s.badge?`<span class="badge ${s.bc}">${s.badge}</span>`:''}
+        </div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  document.getElementById('results').innerHTML=html;
+}
+
+window.addEventListener('load',()=>{
+  const n=new Date();
+  document.getElementById('depart-time').value=fmt(n.getHours(),n.getMinutes());
+  search();
+});
+</script>
+</body>
+</html>
